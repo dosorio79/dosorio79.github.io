@@ -58,10 +58,10 @@ p {
   }
 
 .card_grid {
-  height: 350px;
+  height: 400px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
+  gap: 8px;
   justify-content: center;
 }
 
@@ -69,13 +69,13 @@ p {
   background: white;
   box-shadow: 0 0 16px rgba(0,0,0,0.1);
   border-radius: 4px;
-  width: 200px;
+  width: 300px;
   text-align: center;
   padding: 24px;
   margin: 8px;
   & img {
       width: 180px;
-      height: 180px;
+      height: 250px;
       object-fit: cover;
       border-radius: 4px;
     }
@@ -99,4 +99,10 @@ p {
 #temp {
   height: 350px;
   text-align: center;
+}
+
+@media (max-width: 800px) {
+  .card_grid {
+    grid-template-columns: 1fr;
+  }
 }
