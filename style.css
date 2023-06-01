@@ -1,0 +1,19 @@
+body {
+  background-color: #ffffff;
+}
+
+h1 {
+  color: #4e598c;
+  font-size: large;
+  font-weight: bolder;
+}
+
+h2 {
+  color: #f9c784;
+  font-size: medium;
+  font-weight: bold;
+}
+
+a{
+  text-decoration: none;
+}
