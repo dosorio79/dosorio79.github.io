@@ -29,6 +29,9 @@ h3 {
 a {
   text-decoration: none;
 }
+p {
+  font-family: 'Overpass', sans-serif;
+}
 
 .banner{
   height: 150px;
@@ -50,7 +53,11 @@ a {
   }
 }
 
-.cards {
+.filter-white{
+  filter: invert(97%) sepia(85%) saturate(0%) hue-rotate(65deg) brightness(102%) contrast(109%);
+  }
+
+.card_grid {
   height: 350px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -58,12 +65,24 @@ a {
   justify-content: center;
 }
 
+.card-white {
+  background: white;
+  box-shadow: 0 0 16px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  width: 200px;
+  text-align: center;
+  padding: 24px;
+  margin: 8px;
+  & img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+  }
+
 .container {
   padding: 50px ;
-}
-
-.filter-white{
-filter: invert(97%) sepia(85%) saturate(0%) hue-rotate(65deg) brightness(102%) contrast(109%);
 }
 
 .footer {
@@ -73,7 +92,6 @@ filter: invert(97%) sepia(85%) saturate(0%) hue-rotate(65deg) brightness(102%) c
   padding: 12px 0;
   & p {
   color: #ffffff;
-  font-family: 'Overpass', sans-serif;
   font-size: 12px;
   }
 }
