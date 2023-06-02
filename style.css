@@ -73,6 +73,7 @@ p {
   text-align: center;
   padding: 24px;
   margin: 8px;
+  cursor: pointer;
   & img {
       width: 180px;
       height: 250px;
