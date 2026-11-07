@@ -175,7 +175,7 @@
   const agendaUrl = d => `https://websummit.com/schedule/date/${d}/`;
   const seed = [
     {date:'2026-11-09',start:'18:00',end:'20:00',title:'Opening Night',location:'Centre Stage',category:'Networking',priority:'P2',notes:'Conference opening programme.',link:agendaUrl('2026-11-09')},
-    {date:'2026-11-09',start:'20:00',end:'00:00',title:'Late Night Summit',location:'Time Out Market',category:'Networking',priority:'P2',notes:'Optional networking after Opening Night.',link:agendaUrl('2026-11-09')},
+    {date:'2026-11-09',start:'20:00',end:'23:00',title:'Night Summit',location:'Pavilion 5 · FIL',category:'Networking',priority:'P2',notes:'Official after-hours gathering following Opening Night. Follow the route through the Food and Wine Summit to Pavilion 5.',link:'https://websummit.com/sessions/lis26/a5e13950-584e-48e4-8b28-bf93570ea14f/night-summit/'},
 
     {date:'2026-11-10',start:'08:00',end:'09:00',title:'Let’s Talk Email Over Coffee',location:'Sense of Coffee',category:'Networking',priority:'P3',notes:'Optional early meetup.',link:agendaUrl('2026-11-10')},
     {date:'2026-11-10',start:'09:24',end:'09:54',title:'Breakout startups',location:'Centre Stage',category:'General',priority:'P3',notes:'Short opening session; useful if you want to start at Centre Stage.',link:agendaUrl('2026-11-10')},
@@ -208,7 +208,7 @@
     {date:'2026-11-10',start:'16:00',end:'16:45',title:'Closing the cultural gap in multilingual AI',location:'Masterclass 2 · exact room in official app',category:'AI & data',priority:'P1',mustSee:true,notes:'RWS masterclass on multilingual AI; especially relevant to your multilingual sentiment and customer-experience work.',link:agendaUrl('2026-11-10')},
     {date:'2026-11-10',start:'15:55',end:'16:15',title:'Putting humanity before AI: A Catholic vision',location:'Stage 11 · Policy Summit',category:'Policy',priority:'P3',notes:'Ethics and society perspective.',link:agendaUrl('2026-11-10')},
     {date:'2026-11-10',start:'17:15',end:'17:40',title:'Whose AI is it anyway?',location:'Stage 11 · Policy Summit',category:'Policy',priority:'P2',notes:'Questions of power, ownership and governance.',link:agendaUrl('2026-11-10')},
-    {date:'2026-11-10',start:'18:00',end:'22:00',title:'Night Summit',location:'Pavilion 5 · check app map for exact entrance',category:'Networking',priority:'P2',notes:'Evening networking programme.',link:agendaUrl('2026-11-10')},
+    {date:'2026-11-10',start:'18:00',end:'21:00',title:'Night Summit',location:'Pavilion 5 · FIL',category:'Networking',priority:'P2',notes:'Evening networking programme; official hours are 6–9pm.',link:agendaUrl('2026-11-10')},
     {date:'2026-11-10',start:'18:30',end:'20:30',title:'Connect Lisboa — Mayor’s official reception',location:'Lisbon City Hall',category:'Networking',priority:'P3',notes:'Check invitation and access eligibility. Conflicts with Night Summit.',link:agendaUrl('2026-11-10')},
 
     {date:'2026-11-11',start:'10:00',end:'10:20',title:'The future of enterprise software has no middleman',location:'Centre Stage',category:'Developer',priority:'P1',notes:'How AI coding tools change who can build software, and the need to keep it secure.',link:agendaUrl('2026-11-11')},
@@ -232,6 +232,7 @@
     {date:'2026-11-11',start:'15:40',end:'16:00',title:'When AI meets the physical world',location:'Stage 7 · Corporate Innovation Summit',category:'AI & data',priority:'P3',notes:'Enterprise AI in physical operations.',link:agendaUrl('2026-11-11')},
     {date:'2026-11-11',start:'16:00',end:'16:20',title:'The pay by bank disruption story',location:'Stage 8 · MoneyConf',category:'Financial services',priority:'P2',notes:'Bank payments and how they may change consumer payment journeys.',link:agendaUrl('2026-11-11')},
     {date:'2026-11-11',start:'16:30',end:'16:55',title:'Data analysts meetup',location:'Meetup 1',category:'Networking',priority:'P1',notes:'Meet other data practitioners and compare notes.',link:agendaUrl('2026-11-11')},
+    {date:'2026-11-11',start:'18:00',end:'21:00',title:'Night Summit',location:'Pavilion 5 · FIL',category:'Networking',priority:'P2',notes:'Evening networking programme; official hours are 6–9pm.',link:agendaUrl('2026-11-11')},
 
     {date:'2026-11-12',start:'09:00',end:'10:00',title:'Flexible arrival / explore stands',location:'FIL · Exhibition pavilions',category:'General',priority:'P3',notes:'Leave this open for coffee, stands or catching up on schedule changes.',link:agendaUrl('2026-11-12')},
     {date:'2026-11-12',start:'10:00',end:'10:15',title:'What if every customer conversation could turn into a sale?',location:'E173 · Stand events',category:'Marketing analytics',priority:'P2',notes:'The same short AI-guided shopping-conversation demo is also listed on Thursday. Pick one showing; the official listing does not describe measurement or attribution.',link:'https://websummit.com/sessions/lis26/9c8202fc-cbef-406d-be61-f14e069b6ec4/what-if-every-customer-conversation-could-turn-into-a-sale/'},
@@ -342,9 +343,15 @@
       const parsed=JSON.parse(stored);
       if(Array.isArray(parsed)){
         const key=e=>`${e.date}|${e.title}`;
+        const legacyNightSummitKey='2026-11-09|Late Night Summit';
         const savedByKey=new Map(parsed.map(e=>[key(e),e]));
-        const seedKeys=new Set(seed.map(key));
-        events=[...seed.map(base=>{const savedEvent=savedByKey.get(key(base));return savedEvent?{...base,...savedEvent,mustSee:savedEvent.mustSee??base.mustSee}:base;}),...parsed.filter(e=>!seedKeys.has(key(e)))];
+        const seedKeys=new Set([...seed.map(key),legacyNightSummitKey]);
+        events=[...seed.map(base=>{
+          const savedEvent=savedByKey.get(key(base)) || (base.title==='Night Summit'&&base.date==='2026-11-09'?savedByKey.get(legacyNightSummitKey):null);
+          if(!savedEvent)return base;
+          if(base.title==='Night Summit')return {...savedEvent,...base,id:savedEvent.id||base.id,mustSee:savedEvent.mustSee??base.mustSee};
+          return {...base,...savedEvent,mustSee:savedEvent.mustSee??base.mustSee};
+        }),...parsed.filter(e=>!seedKeys.has(key(e)))];
       }
     }
   } catch {}
