@@ -439,12 +439,12 @@
     if(!dayItems.length){host.innerHTML='<div class="roadmap-empty">No sessions are scheduled for this day yet.</div>';return;}
     const first=Math.min(...dayItems.map(e=>parseMinutes(e.start)));
     const last=Math.max(...dayItems.map(e=>parseMinutes(e.end)));
-    const axisStart=Math.floor(first/120)*120;
-    const axisEnd=Math.max(axisStart+120,Math.ceil(last/120)*120);
+    const axisStart=Math.floor(first/60)*60;
+    const axisEnd=Math.max(axisStart+60,Math.ceil(last/60)*60);
     const span=axisEnd-axisStart;
-    const blocks=Math.ceil(span/120);
+    const blocks=Math.ceil(span/60);
     const step=100/blocks;
-    const ticks=Array.from({length:blocks},(_,index)=>`<div class="roadmap-tick">${formatTimelineTime(axisStart+index*120)}</div>`).join('');
+    const ticks=Array.from({length:blocks},(_,index)=>`<div class="roadmap-tick">${formatTimelineTime(axisStart+index*60)}</div>`).join('');
     const rows=visibleItems.map(e=>{
       const start=parseMinutes(e.start),end=parseMinutes(e.end),conflict=overlaps(e);
       const left=((start-axisStart)/span)*100,duration=((end-start)/span)*100;
