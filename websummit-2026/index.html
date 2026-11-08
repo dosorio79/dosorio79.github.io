@@ -77,6 +77,7 @@
     .roadmap-conflict { grid-column:2; grid-row:1; padding:3px 5px; border-radius:999px; color:#8e5c0a; background:#fff1d1; font-size:8px; font-weight:850; }
     .roadmap-track { position:relative; min-width:0; min-height:48px; background-image:repeating-linear-gradient(to right,transparent 0,transparent calc(var(--step) - 1px),#e0e5ef calc(var(--step) - 1px),#e0e5ef var(--step)); }
     .roadmap-bar { position:absolute; top:50%; left:var(--event-start); width:var(--event-duration); min-width:5px; height:17px; transform:translateY(-50%); border:1px solid #ffffffbb; border-radius:999px; box-shadow:0 1px 3px #15213a30; }
+    .roadmap-bar.lunch-bar { background:#237763; }
     .roadmap-bar.p1 { background:#e64d46; }
     .roadmap-bar.p2 { background:#e6a322; }
     .roadmap-bar.p3 { background:#69778c; }
@@ -190,6 +191,7 @@
     <nav class="view-switch" aria-label="Choose view">
       <button type="button" id="calendar-view-button" aria-pressed="false">List</button>
       <button type="button" id="roadmap-view-button" class="active" aria-pressed="true">Timeline</button>
+      <button type="button" id="itinerary-button" aria-pressed="false">Suggested itinerary</button>
       <button type="button" id="notes-view-button" aria-pressed="false">Daily notes</button>
       <span id="view-hint">Notes save in this browser. Export a day as Markdown to move it elsewhere.</span>
     </nav>
@@ -417,12 +419,16 @@
     $('roadmap-view-button').setAttribute('aria-pressed',String(activeView==='roadmap'));
     $('notes-view-button').setAttribute('aria-pressed',String(activeView==='notes'));
     $('view-hint').textContent=activeView==='roadmap'?'One session per row · bars share a time scale · overlaps are flagged.':activeView==='notes'?'Notes save in this browser. Export a day as Markdown to move it elsewhere.':'Choose a day and filter sessions, or switch to Timeline to compare timing and overlaps.';
-    $('filters').hidden=activeView==='notes';
+    const suggested = activeView === 'itinerary';
+    $('itinerary-button').classList.toggle('active', suggested);
+    $('itinerary-button').setAttribute('aria-pressed', String(suggested));
+    if (suggested) $('view-hint').textContent = 'Recommended sessions for the selected day';
+    $('filters').hidden = suggested || activeView === 'notes';
     document.querySelector('.actions').hidden=activeView==='notes';
-    document.querySelector('.must-box').hidden=activeView==='notes';
+    document.querySelector('.must-box').hidden=suggested || activeView==='notes';
     document.querySelector('.legend').hidden=activeView==='notes';
     $('agenda').hidden=activeView!=='calendar';
-    $('roadmap-view').hidden=activeView!=='roadmap';
+    $('roadmap-view').hidden=!suggested && activeView!=='roadmap';
     $('notes-panel').hidden=activeView!=='notes';
   }
   function renderMustSee() {
@@ -434,8 +440,80 @@
     if(minutes===1440)return '24:00';
     return `${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
   }
-  function renderRoadmap(dayItems,visibleItems) {
+  const itineraryByDate = {
+  "2026-11-09": {
+    "titles": [
+      "Opening Night"
+    ],
+    "lunch": null,
+    "decisions": [
+      "Monday is an evening arrival. Opening Night is the anchor. Night Summit starts as the opening programme ends in a different venue, so treat it as a drop-in afterwards."
+    ]
+  },
+  "2026-11-10": {
+    "titles": [
+      "Mapping the new buyer journey",
+      "From “For You” to “For Me”: The new path from discovery to action",
+      "Beyond scale: Why the future of AI is efficient",
+      "Scroll, gamble, repeat: How not to invest in 2026",
+      "The Digital Euro explained",
+      "Closing the cultural gap in multilingual AI"
+    ],
+    "lunch": [
+      "12:15",
+      "13:15"
+    ],
+    "decisions": [
+      "Intel’s 10:30–11:15 masterclass overlaps the final five minutes of Mapping the new buyer journey and all of From “For You” to “For Me”. Stay at Stage 14 for the two marketing talks to follow discovery through to action.",
+      "After the second talk, you have 30 minutes to reach Stage 13 for Beyond scale. Lunch follows, with time afterwards for the exhibition or chapter notes.",
+      "Pair the afternoon MoneyConf talks for a consumer-finance perspective. The Digital Euro ends at 15:40, leaving 20 minutes to reach the multilingual AI masterclass, a close fit for your customer-feedback work."
+    ]
+  },
+  "2026-11-11": {
+    "titles": [
+      "Why banking has become an AI conversation",
+      "AI sovereignty: Data control, governance and predictable AI costs",
+      "What happens when machines start asking questions at scale?",
+      "50 models, one pipeline",
+      "Data analysts meetup"
+    ],
+    "lunch": [
+      "12:50",
+      "13:40"
+    ],
+    "decisions": [
+      "Start with banking AI. The neobank panel is scheduled to finish five minutes into AI sovereignty. Choose the masterclass for its relevance to model costs and governance in a financial institution.",
+      "There are 15 minutes between the masterclass and the ten-minute analytics talk on Stage 9. If the transfer runs long, keep lunch and the 14:00 model-routing talk as your anchors.",
+      "50 models, one pipeline is the closest match to your Jev routing experiment. Use the gap before the analysts meetup to write down how the speaker chooses between models and measures the trade-off."
+    ]
+  },
+  "2026-11-12": {
+    "titles": [
+      "Data engineering meetup",
+      "Hybrid AI: From cloud to edge intelligence",
+      "Who let the agent in?",
+      "Why structured data is AI’s real frontier",
+      "Search built for AI agents"
+    ],
+    "lunch": [
+      "12:30",
+      "13:30"
+    ],
+    "decisions": [
+      "The data engineering meetup ends at 10:25, leaving 35 minutes to reach the hybrid AI masterclass. The full-hour machine-learning session ends exactly as that masterclass starts.",
+      "After the noon SaaS talk, protect lunch and leave the early afternoon open for follow-ups.",
+      "Finish at Stage 13. The structured-data talk connects to tabular models for pricing and conversion. Stay for agent search, with 20 minutes between talks to capture a chapter takeaway."
+    ]
+  }
+};
+  function renderRoadmap(dayItems,visibleItems,plan) {
     const host=$('roadmap-view');
+    if (plan) {
+      visibleItems = dayItems.filter(event => plan.titles.includes(event.title));
+      $('shown-count').textContent = visibleItems.length + (visibleItems.length === 1 ? ' recommended session' : ' recommended sessions');
+      if (plan.lunch) visibleItems.push({title:'Lunch',start:plan.lunch[0],end:plan.lunch[1],isLunch:true});
+      visibleItems.sort((a,b)=>a.start.localeCompare(b.start));
+    }
     if(!dayItems.length){host.innerHTML='<div class="roadmap-empty">No sessions are scheduled for this day yet.</div>';return;}
     const first=Math.min(...dayItems.map(e=>parseMinutes(e.start)));
     const last=Math.max(...dayItems.map(e=>parseMinutes(e.end)));
@@ -446,22 +524,22 @@
     const step=100/blocks;
     const ticks=Array.from({length:blocks},(_,index)=>`<div class="roadmap-tick">${formatTimelineTime(axisStart+index*60)}</div>`).join('');
     const rows=visibleItems.map(e=>{
-      const start=parseMinutes(e.start),end=parseMinutes(e.end),conflict=overlaps(e);
+      const start=parseMinutes(e.start),end=parseMinutes(e.end),conflict=plan ? visibleItems.some(other=>other!==e && other.start<e.end && e.start<other.end) : overlaps(e);
       const left=((start-axisStart)/span)*100,duration=((end-start)/span)*100;
       const link=e.link||agendaUrl(e.date);
       return `<div class="roadmap-row ${conflict?'has-overlap':''}" role="listitem">
         <div class="roadmap-event-label">
           <div class="roadmap-event-time">${esc(e.start)}–${esc(e.end)}</div>
-          <div class="roadmap-event-copy"><a class="roadmap-event-name" href="${esc(link)}" target="_blank" rel="noreferrer" title="${esc(e.title)}">${esc(e.title)}</a><div class="roadmap-event-meta">${esc(e.location||'Location to confirm in the Web Summit app')} · ${esc(e.category)} · ${esc(e.priority)}${e.mustSee?' · MUST SEE':''}</div></div>
+          <div class="roadmap-event-copy">${e.isLunch ? '<strong class="roadmap-event-name">Lunch</strong>' : `<a class="roadmap-event-name" href="${esc(link)}" target="_blank" rel="noreferrer" title="${esc(e.title)}">${esc(e.title)}</a><div class="roadmap-event-meta">${esc(e.location||'Location to confirm in the Web Summit app')} · ${esc(e.category)} · ${esc(e.priority)}${e.mustSee?' · MUST SEE':''}</div>`}</div>
           ${conflict?'<span class="roadmap-conflict" title="Overlaps another scheduled session">Overlap</span>':''}
         </div>
         <div class="roadmap-track" style="--step:${step}%" aria-label="${esc(e.start)} to ${esc(e.end)}">
-          <span class="roadmap-bar ${priorityClass(e.priority)}" style="--event-start:${left}%;--event-duration:${duration}%" title="${esc(e.title)} · ${esc(e.start)}–${esc(e.end)}"></span>
+          <span class="roadmap-bar ${e.isLunch ? 'lunch-bar' : priorityClass(e.priority)}" style="--event-start:${left}%;--event-duration:${duration}%" title="${esc(e.title)} · ${esc(e.start)}–${esc(e.end)}"></span>
         </div>
       </div>`;
     }).join('');
     const overlappingRows=visibleItems.filter(overlaps).length;
-    host.innerHTML=`<p class="roadmap-intro">${visibleItems.length} sessions shown · one session per row · ${overlappingRows} sessions overlap another session. Bars use the same left-to-right time scale; overlapping sessions are highlighted and flagged.</p>
+    host.innerHTML=`${plan ? `<section class="roadmap-intro"><strong>Why this route</strong><ul>${plan.decisions.map(reason=>`<li>${esc(reason)}</li>`).join('')}</ul></section>` : `<p class="roadmap-intro">${visibleItems.length} sessions shown · one session per row · ${overlappingRows} sessions overlap another session. Bars use the same left-to-right time scale; overlapping sessions are highlighted and flagged.</p>`}
       <div class="roadmap-shell"><div class="roadmap-grid" style="--blocks:${blocks}">
         <div class="roadmap-axis"><div class="roadmap-axis-label">Session · location · priority</div><div class="roadmap-axis-track">${ticks}<span class="roadmap-tick-end">${formatTimelineTime(axisEnd)}</span></div></div>
         <div role="list" style="display:contents">${rows||'<div class="roadmap-empty">No sessions match this filter. Choose another priority.</div>'}</div>
@@ -499,7 +577,7 @@
         <div class="event-actions"><a class="small-btn" href="${esc(link)}" target="_blank" rel="noreferrer">Official schedule ↗</a><button class="small-btn" data-edit="${e.id}">Edit</button><button class="small-btn" data-remove="${e.id}">Remove</button></div>
       </article>`;
     }).join(''):'<div class="empty">No sessions match this filter. Add one or choose another filter.</div>';
-    renderRoadmap(todaysEvents,list);
+    renderRoadmap(todaysEvents,list,activeView==='itinerary' ? itineraryByDate[selectedDate] : null);
     $('agenda').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEditor(events.find(e=>e.id===b.dataset.edit)));
     $('agenda').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>removeEvent(b.dataset.remove));
     $('event-total').textContent=`${events.length} sessions`;
@@ -561,6 +639,7 @@
     e.target.value='';
   });
   $('reset-data').onclick=()=>{if(!confirm('Restore the original draft? This replaces all your browser edits and notes. Export first if you want to keep them.'))return;events=seed.map(e=>({...e,id:crypto.randomUUID()}));dayNotes={};try{localStorage.removeItem(storageKey);localStorage.removeItem(dayNotesStorageKey);}catch{}save();saveDayNotes();render();showToast('Original draft restored');};
+  $('itinerary-button').onclick=()=>{activeView='itinerary';render();};
   $('calendar-view-button').onclick=()=>{activeView='calendar';render();};
   $('roadmap-view-button').onclick=()=>{activeView='roadmap';render();};
   $('notes-view-button').onclick=()=>{activeView='notes';activeFilter='All';render();};
