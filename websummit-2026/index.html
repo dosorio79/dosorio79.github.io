@@ -188,8 +188,8 @@
       <ol class="must-list" id="must-list"></ol>
     </section>
     <nav class="view-switch" aria-label="Choose view">
-      <button type="button" id="calendar-view-button" class="active" aria-pressed="true">Calendar</button>
-      <button type="button" id="roadmap-view-button" aria-pressed="false">Roadmap</button>
+      <button type="button" id="calendar-view-button" aria-pressed="false">List</button>
+      <button type="button" id="roadmap-view-button" class="active" aria-pressed="true">Timeline</button>
       <button type="button" id="notes-view-button" aria-pressed="false">Daily notes</button>
       <span id="view-hint">Notes save in this browser. Export a day as Markdown to move it elsewhere.</span>
     </nav>
@@ -207,7 +207,7 @@
     <div class="day-heading"><div><h2 id="day-title"></h2><p id="day-subtitle"></p></div><div class="count" id="shown-count"></div></div>
     <div class="legend"><b>Priority:</b><span>🔴 P1 · strong fit</span><span>🟠 P2 · worthwhile alternative</span><span>⚪ P3 · optional / networking</span><span>⚠️ overlap with another session</span></div>
     <section class="agenda" id="agenda" aria-live="polite"></section>
-    <section class="roadmap-view" id="roadmap-view" aria-label="Roadmap timeline" hidden></section>
+    <section class="roadmap-view" id="roadmap-view" aria-label="Session timeline"></section>
     <section class="notes-panel" id="notes-panel" hidden>
       <h2 class="notes-print-title" id="notes-print-title"></h2>
       <div class="notes-toolbar">
@@ -387,7 +387,7 @@
   let events = seed;
   let selectedDate = '2026-11-10';
   let activeFilter = 'All';
-  let activeView = 'calendar';
+  let activeView = 'roadmap';
   let dayNotes = {};
   let toastTimer;
   const $ = id => document.getElementById(id);
@@ -416,7 +416,7 @@
     $('calendar-view-button').setAttribute('aria-pressed',String(activeView==='calendar'));
     $('roadmap-view-button').setAttribute('aria-pressed',String(activeView==='roadmap'));
     $('notes-view-button').setAttribute('aria-pressed',String(activeView==='notes'));
-    $('view-hint').textContent=activeView==='roadmap'?'Bars are to scale; vertical divisions mark two-hour blocks and overlaps line up by time.':activeView==='notes'?'Notes save in this browser. Export a day as Markdown to move it elsewhere.':'Choose a day and filter by priority, or switch to Roadmap to compare timing and overlaps.';
+    $('view-hint').textContent=activeView==='roadmap'?'One session per row · bars share a time scale · overlaps are flagged.':activeView==='notes'?'Notes save in this browser. Export a day as Markdown to move it elsewhere.':'Choose a day and filter sessions, or switch to Timeline to compare timing and overlaps.';
     $('filters').hidden=activeView==='notes';
     document.querySelector('.actions').hidden=activeView==='notes';
     document.querySelector('.must-box').hidden=activeView==='notes';
@@ -461,9 +461,9 @@
       </div>`;
     }).join('');
     const overlappingRows=visibleItems.filter(overlaps).length;
-    host.innerHTML=`<p class="roadmap-intro">${visibleItems.length} sessions shown · ${overlappingRows} rows overlap another scheduled session. Longer bars mean longer sessions. Each column is two hours.</p>
+    host.innerHTML=`<p class="roadmap-intro">${visibleItems.length} sessions shown · one session per row · ${overlappingRows} sessions overlap another session. Bars use the same left-to-right time scale; overlapping sessions are highlighted and flagged.</p>
       <div class="roadmap-shell"><div class="roadmap-grid" style="--blocks:${blocks}">
-        <div class="roadmap-axis"><div class="roadmap-axis-label">Session · stage · priority</div><div class="roadmap-axis-track">${ticks}<span class="roadmap-tick-end">${formatTimelineTime(axisEnd)}</span></div></div>
+        <div class="roadmap-axis"><div class="roadmap-axis-label">Session · location · priority</div><div class="roadmap-axis-track">${ticks}<span class="roadmap-tick-end">${formatTimelineTime(axisEnd)}</span></div></div>
         <div role="list" style="display:contents">${rows||'<div class="roadmap-empty">No sessions match this filter. Choose another priority.</div>'}</div>
       </div></div>`;
   }
