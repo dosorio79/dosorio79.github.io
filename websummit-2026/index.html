@@ -64,6 +64,9 @@
     .note-meta { color:#52617b; font-size:11px; font-weight:800; line-height:1.5; }
     .note-card h3 { margin:5px 0 7px; font-size:15px; line-height:1.35; }
     .session-info { margin:0 0 12px; color:#65728a; font-size:12px; line-height:1.5; }
+    .official-summary { margin:0 0 12px; padding:11px 12px; border-left:3px solid #465cde; border-radius:0 9px 9px 0; background:#f4f6ff; color:#384661; font-size:12px; line-height:1.55; }
+    .official-summary strong { display:block; margin-bottom:4px; color:#384bb4; font-size:10px; text-transform:uppercase; letter-spacing:.06em; }
+    .official-summary a { display:inline-block; margin-top:5px; color:#384bb4; font-size:11px; font-weight:750; }
     .note-card label, .day-note-card label { display:block; margin:0 0 6px; color:#4c5a73; font-size:11px; font-weight:800; }
     .note-card textarea, .day-note-card textarea { display:block; width:100%; min-height:112px; resize:vertical; padding:11px; border:1px solid #d8deea; border-radius:10px; background:#fff; color:var(--ink); font:inherit; font-size:13px; line-height:1.5; }
     .day-note-card h3 { margin:0 0 8px; font-size:15px; }
@@ -304,6 +307,37 @@
     {date:'2026-11-12',start:'16:00',end:'16:45',title:'Marketing HIIT session: Vibe design at speed',location:'Masterclass 2 · exact room in official app',category:'Marketing analytics',priority:'P3',notes:'Picsart session on rapid AI-assisted design. Optional marketing-creative session, less directly relevant to personal-finance analytics.',link:agendaUrl('2026-11-12')}
   ].map(e => ({...e, id: crypto.randomUUID()}));
 
+  // Concise paraphrases of descriptions published on the official Web Summit session pages.
+  const officialDescriptions = {
+    'Opening Night': ['Opening ceremony and conference launch, followed by an evening programme with networking, speed networking, meetups and entertainment.', 'https://websummit.com/schedule/date/2026-11-09/'],
+    'Breakout startups': ['A short showcase of startup founders pitching their companies and products on Centre Stage.', 'https://websummit.com/schedule/date/2026-11-10/'],
+    'What if every customer conversation could turn into a sale?': ['A live demonstration of an AI shopping assistant guiding a customer from an initial question through product recommendations to checkout.', 'https://websummit.com/sessions/lis26/e2b57359-67e7-4227-918f-546b146166ed/what-if-every-customer-conversation-could-turn-into-a-sale/'],
+    'New R&D workflow with AI agents': ['Sanofi and Owkin discuss how AI agents could change pharmaceutical research and support more precise medicine, separating practical progress from hype.', 'https://websummit.com/schedule/date/2026-11-10/'],
+    'In the age of AI, trust is still human': ['Drawing on founder research and Enfuce’s fintech experience, the talk considers why human trust remains essential as technology automates more interactions.', 'https://websummit.com/schedule/date/2026-11-10/'],
+    'Mapping the new buyer journey': ['AI is changing how buyers research and compare products before brands see them. The session offers a way to identify key decision points and connect AI visibility with customer behaviour and business results.', 'https://websummit.com/sessions/lis26/ef95cc8b-d7ed-46dd-b624-e07b677e478a/mapping-the-new-buyer-journey/'],
+    'The open-source advantage': ['Open models can give companies more control over data, reduce compute costs and help teams innovate faster; the session makes the case for flexible open-source AI.', 'https://websummit.com/sessions/lis26/67bf8048-752a-43d1-84fc-7a03cfdd45ad/the-open-source-advantage/'],
+    'Your AI agent just got a passport': ['The session looks at what it takes for AI agents to work reliably across markets, including local language, culture and customer expectations.', 'https://websummit.com/schedule/date/2026-11-10/'],
+    'From “For You” to “For Me”: The new path from discovery to action': ['TikTok and Scalable examine how personalized discovery can move people from finding content to taking action, and how brands should adapt.', 'https://websummit.com/schedule/date/2026-11-10/'],
+    'Stop prompting, start directing: AI as a creative production system': ['AI is changing creative work by helping teams produce more concepts at scale. The talk considers the creative director’s role, brand consistency and where teams can begin.', 'https://websummit.com/sessions/lis26/e3e9b86f-aee1-4ebe-af10-177f605058a3/stop-prompting-start-directing-ai-as-a-creative-production-system/'],
+    'Is it time to unify the global payment stack?': ['Fragmented regional payment rails and legacy systems can slow global commerce. The session explores unified infrastructure and orchestration as ways to rethink transaction strategy.', 'https://websummit.com/sessions/lis26/32ed5d75-49a2-4ad5-bc67-68f2c65418bf/is-it-time-to-unify-the-global-payment-stack/'],
+    'Bet on the foundation, not the framework': ['The speaker argues that durable infrastructure and execution foundations matter more than allegiance to a particular AI framework, especially as models and tools keep changing.', 'https://websummit.com/schedule/date/2026-11-10/'],
+    'Beyond scale: Why the future of AI is efficient': ['Instead of relying only on larger models and more compute, the talk explores high-density models that can run closer to users, with lower cost and better privacy and responsiveness.', 'https://websummit.com/sessions/lis26/045c5b3d-cb96-434f-b8a8-68e6e265f483/beyond-scale-why-the-future-of-ai-is-efficient/'],
+    'The Eureka Machine': ['Richard Socher presents AI as a way to expand scientific knowledge, describing a path toward systems that improve themselves and contribute to scientific discovery.', 'https://websummit.com/sessions/lis26/09c839cf-f3ec-43df-837d-fb14a9cddfd8/the-eureka-machine/'],
+    'What will drive the next phase of digital assets?': ['As banking, wealth management and digital assets converge, the session examines the role of crypto platforms and the infrastructure needed for trusted consumer experiences.', 'https://websummit.com/sessions/lis26/e47719fe-b537-4c2f-9126-b95ef1b1ca1a/what-will-drive-the-next-phase-of-digital-assets/'],
+    'The quantum leap for AI': ['The discussion considers whether quantum computing could extend AI’s capacity for discovery and problem-solving beyond the limits of today’s computing systems.', 'https://websummit.com/schedule/date/2026-11-10/'],
+    'Why banking has become an AI conversation': ['The session looks at conversational AI in consumer finance, including ways to embed lending into customer intent and make credit journeys more immediate and transparent.', 'https://websummit.com/sessions/lis26/f8c2a9e2-5e61-458f-ad74-2c483556dc99/why-banking-has-become-an-ai-conversation/'],
+    'The AI agent economy': ['Qualcomm’s session covers the edge computing, low latency and trust infrastructure needed to move AI agents from chat interfaces into everyday devices and tasks.', 'https://websummit.com/sessions/lis26/7bd19b8b-b399-42d5-b94f-df528a27696a/the-ai-agent-economy/'],
+    'The model was never the product': ['Jasper’s experience is used to explore how an AI company can adapt when its original product is commoditized, shifting toward a platform and applied AI services embedded in enterprise teams.', 'https://websummit.com/sessions/lis26/1fa07835-6cda-4503-9852-b0319d4bcb4c/the-model-was-never-the-product/'],
+    'Building profitable neobanks at scale': ['The discussion focuses on how digital banks can move beyond subsidized customer growth and low-friction design toward stronger unit economics, diversified revenue and lasting profitability.', 'https://websummit.com/sessions/lis26/87e7f1d1-43af-4d80-ae00-df83b0b5aab4/building-profitable-neobanks-at-scale/'],
+    'Don’t feed shit to agents': ['LUSH and Directus describe building a governed data layer from fragmented product information, giving AI agents reliable context across markets.', 'https://websummit.com/sessions/lis26/858c105c-7c26-4196-bbc1-5a6ef6a35f55/don-t-feed-shit-to-agents/'],
+    'What happens when machines start asking questions at scale?': ['As analysts begin using agents to query data, the session asks whether current data infrastructure and data models are ready for this new way of working.', 'https://websummit.com/sessions/lis26/a990a30d-a378-4a25-864e-b391dacb5a9d/what-happens-when-machines-start-asking-questions-at-scale/'],
+    '50 models, one pipeline': ['Dataminr describes routing work across many specialized models in one pipeline to reduce reliance on a single large model and manage compute costs.', 'https://websummit.com/sessions/lis26/6a3b9ac3-c004-47ec-85a8-82b009435728/50-models-one-pipeline/'],
+    'The pay by bank disruption story': ['TrueLayer’s session considers whether account-to-account payments could change consumer payment journeys and challenge established payment methods.', 'https://websummit.com/sessions/lis26/64f96f60-1661-42f7-95a8-9d2e0ba8c32f/the-pay-by-bank-disruption-story-are-payments-having-their-streaming-moment/'],
+    'When AI agents go rogue': ['A live simulation shows autonomous agents developing unintended goals and behaviours, raising questions about whether current safeguards are sufficient for more independent systems.', 'https://websummit.com/sessions/lis26/afe1fd71-2a98-41e4-8707-9101353797b3/when-ai-agents-go-rogue/'],
+    'AI’s octopus era': ['The speakers explore how AI that can reason over tabular business data might help enterprises become more autonomous and change how work and decisions are organized.', 'https://websummit.com/sessions/lis26/d81d7dd6-7bed-4727-ad86-00d0203debf0/ai-s-octopus-era/']
+  };
+  seed.forEach(e=>{const description=officialDescriptions[e.title];if(description){e.officialSummary=description[0];e.officialLink=description[1];}});
+
   const storageKey = 'websummit26-calendar-v1';
   const dayNotesStorageKey = 'websummit26-day-notes-v1';
   let events = seed;
@@ -361,6 +395,7 @@
     $('notes-list').innerHTML=list.length?list.map(e=>`<article class="note-card">
       <div class="note-meta">${esc(e.start)}–${esc(e.end)} · ${esc(e.location||'Location to confirm in the Web Summit app')}</div>
       <h3>${esc(e.title)}</h3>
+      ${e.officialSummary?`<div class="official-summary"><strong>Official programme description · summary</strong>${esc(e.officialSummary)}<br><a href="${esc(e.officialLink||e.link||agendaUrl(e.date))}" target="_blank" rel="noreferrer">Open official session page ↗</a></div>`:''}
       ${e.notes?`<p class="session-info">${esc(e.notes)}</p>`:''}
       <label for="session-note-${esc(e.id)}">Your notes</label>
       <textarea id="session-note-${esc(e.id)}" data-session-note="${esc(e.id)}" placeholder="Key ideas, examples, quotes, questions…">${esc(e.userNotes||'')}</textarea>
@@ -388,6 +423,7 @@
     const sections=items.map(e=>[
       `## ${e.title}`,
       `**${e.start}–${e.end}** · ${e.location||'Location to confirm in the Web Summit app'}`,
+      e.officialSummary?`**Official programme description · summary**\n${e.officialSummary}\n\n[Open official session page](${e.officialLink||e.link||agendaUrl(e.date)})`:'',
       e.notes||'',
       `**Your notes**\n${e.userNotes||''}`
     ].filter(Boolean).join('\n\n'));
@@ -416,7 +452,8 @@
   $('event-form').addEventListener('submit',e=>{
     e.preventDefault();
     const id=$('event-id').value||crypto.randomUUID();
-    const item={id,date:$('f-date').value,start:$('f-start').value,end:$('f-end').value,title:$('f-title').value.trim(),location:$('f-location').value.trim(),priority:$('f-priority').value,mustSee:$('f-mustsee').value==='true',category:$('f-category').value,link:$('f-link').value.trim()||agendaUrl($('f-date').value),notes:$('f-notes').value.trim(),userNotes:events.find(x=>x.id===id)?.userNotes||''};
+    const existing=events.find(x=>x.id===id);
+    const item={id,date:$('f-date').value,start:$('f-start').value,end:$('f-end').value,title:$('f-title').value.trim(),location:$('f-location').value.trim(),priority:$('f-priority').value,mustSee:$('f-mustsee').value==='true',category:$('f-category').value,link:$('f-link').value.trim()||agendaUrl($('f-date').value),notes:$('f-notes').value.trim(),userNotes:existing?.userNotes||'',officialSummary:existing?.officialSummary||'',officialLink:existing?.officialLink||''};
     if(parseMinutes(item.end)<=parseMinutes(item.start)){showToast('End time must be after start time');return;}
     const idx=events.findIndex(x=>x.id===id); if(idx>=0)events[idx]=item;else events.push(item);
     selectedDate=item.date;save();render();closeEditor();showToast(idx>=0?'Session updated':'Session added');
