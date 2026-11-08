@@ -65,7 +65,7 @@
     .roadmap-axis-track { position:relative; display:grid; grid-template-columns:repeat(var(--blocks),minmax(0,1fr)); }
     .roadmap-tick { padding:10px 6px; border-left:1px solid #d9dfeb; color:#34435f; font-size:11px; font-weight:850; font-variant-numeric:tabular-nums; }
     .roadmap-tick-end { position:absolute; top:10px; right:3px; color:#34435f; font-size:11px; font-weight:850; font-variant-numeric:tabular-nums; }
-    .roadmap-row { display:grid; grid-template-columns:inherit; grid-column:1/-1; min-height:48px; border-bottom:1px solid #edf0f5; }
+    .roadmap-row { display:grid; grid-template-columns:var(--label-width) minmax(650px,1fr); grid-column:1/-1; min-height:48px; border-bottom:1px solid #edf0f5; }
     .roadmap-row:last-child { border-bottom:0; }
     .roadmap-row.has-overlap { background:#fffcf4; }
     .roadmap-event-label { display:flex; align-items:center; gap:8px; min-width:0; padding:7px 10px; border-right:1px solid var(--line); }
