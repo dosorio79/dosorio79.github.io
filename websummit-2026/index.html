@@ -56,6 +56,31 @@
     .day-heading p { margin:5px 0 0; color:var(--muted); font-size:13px; }
     .count { color:#68758b; font-size:12px; white-space:nowrap; }
     .agenda { display:grid; gap:10px; }
+    .roadmap-view { display:grid; gap:12px; }
+    .roadmap-intro { margin:0; padding:11px 13px; color:#52617b; background:#eef3ff; border:1px solid #dce5ff; border-radius:11px; font-size:12px; line-height:1.5; }
+    .roadmap-shell { overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:#fff; box-shadow:var(--shadow); }
+    .roadmap-grid { min-width:940px; --label-width:280px; display:grid; grid-template-columns:var(--label-width) minmax(650px,1fr); }
+    .roadmap-axis { position:sticky; top:0; z-index:2; display:grid; grid-template-columns:inherit; grid-column:1/-1; background:#f3f6fc; border-bottom:1px solid var(--line); }
+    .roadmap-axis-label { display:flex; align-items:center; padding:10px 13px; color:#52617b; font-size:11px; font-weight:850; border-right:1px solid var(--line); }
+    .roadmap-axis-track { position:relative; display:grid; grid-template-columns:repeat(var(--blocks),minmax(0,1fr)); }
+    .roadmap-tick { padding:10px 6px; border-left:1px solid #d9dfeb; color:#34435f; font-size:11px; font-weight:850; font-variant-numeric:tabular-nums; }
+    .roadmap-tick-end { position:absolute; top:10px; right:3px; color:#34435f; font-size:11px; font-weight:850; font-variant-numeric:tabular-nums; }
+    .roadmap-row { display:grid; grid-template-columns:inherit; grid-column:1/-1; min-height:48px; border-bottom:1px solid #edf0f5; }
+    .roadmap-row:last-child { border-bottom:0; }
+    .roadmap-row.has-overlap { background:#fffcf4; }
+    .roadmap-event-label { display:flex; align-items:center; gap:8px; min-width:0; padding:7px 10px; border-right:1px solid var(--line); }
+    .roadmap-event-time { flex:0 0 82px; color:#34435f; font-size:10px; font-weight:850; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .roadmap-event-copy { min-width:0; flex:1; }
+    .roadmap-event-name { display:block; overflow:hidden; color:var(--ink); font-size:11px; font-weight:800; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; text-decoration:none; }
+    .roadmap-event-name:hover { color:#364dc5; text-decoration:underline; }
+    .roadmap-event-meta { overflow:hidden; color:#68758b; font-size:9px; line-height:1.35; text-overflow:ellipsis; white-space:nowrap; }
+    .roadmap-conflict { flex:0 0 auto; padding:3px 5px; border-radius:999px; color:#8e5c0a; background:#fff1d1; font-size:8px; font-weight:850; }
+    .roadmap-track { position:relative; min-width:0; min-height:48px; background-image:repeating-linear-gradient(to right,transparent 0,transparent calc(var(--step) - 1px),#e0e5ef calc(var(--step) - 1px),#e0e5ef var(--step)); }
+    .roadmap-bar { position:absolute; top:50%; left:var(--event-start); width:var(--event-duration); min-width:5px; height:17px; transform:translateY(-50%); border:1px solid #ffffffbb; border-radius:999px; box-shadow:0 1px 3px #15213a30; }
+    .roadmap-bar.p1 { background:#e64d46; }
+    .roadmap-bar.p2 { background:#e6a322; }
+    .roadmap-bar.p3 { background:#69778c; }
+    .roadmap-empty { padding:24px; border:1px dashed #cbd3e1; border-radius:13px; color:var(--muted); background:#fff; font-size:13px; }
     .notes-panel { display:grid; gap:10px; }
     .notes-toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px; border:1px solid var(--line); border-radius:13px; background:#fff; }
     .notes-toolbar p { margin:0 auto 0 0; color:var(--muted); font-size:12px; }
@@ -129,7 +154,7 @@
     }
     @media print {
       body { background:#fff; }
-      .hero, .venue, .must-box, .view-switch, .toolbar, .day-heading, .legend, .agenda, .footnote, .notes-toolbar, .toast { display:none !important; }
+      .hero, .venue, .must-box, .view-switch, .toolbar, .day-heading, .legend, .agenda, .roadmap-view, .footnote, .notes-toolbar, .toast { display:none !important; }
       main { max-width:none; margin:0; padding:0; }
       #notes-panel { display:block !important; }
       .notes-panel { gap:8px; }
@@ -164,8 +189,9 @@
     </section>
     <nav class="view-switch" aria-label="Choose view">
       <button type="button" id="calendar-view-button" class="active" aria-pressed="true">Calendar</button>
+      <button type="button" id="roadmap-view-button" aria-pressed="false">Roadmap</button>
       <button type="button" id="notes-view-button" aria-pressed="false">Daily notes</button>
-      <span>Notes save in this browser. Export a day as Markdown to move it elsewhere.</span>
+      <span id="view-hint">Notes save in this browser. Export a day as Markdown to move it elsewhere.</span>
     </nav>
     <section class="toolbar" aria-label="Calendar controls">
       <nav class="day-tabs" id="day-tabs" aria-label="Choose day"></nav>
@@ -181,6 +207,7 @@
     <div class="day-heading"><div><h2 id="day-title"></h2><p id="day-subtitle"></p></div><div class="count" id="shown-count"></div></div>
     <div class="legend"><b>Priority:</b><span>🔴 P1 · strong fit</span><span>🟠 P2 · worthwhile alternative</span><span>⚪ P3 · optional / networking</span><span>⚠️ overlap with another session</span></div>
     <section class="agenda" id="agenda" aria-live="polite"></section>
+    <section class="roadmap-view" id="roadmap-view" aria-label="Roadmap timeline" hidden></section>
     <section class="notes-panel" id="notes-panel" hidden>
       <h2 class="notes-print-title" id="notes-print-title"></h2>
       <div class="notes-toolbar">
@@ -384,14 +411,18 @@
     $('filters').innerHTML = ['All','P1','P2','P3','Networking'].map(f=>`<button class="filter-btn ${f===activeFilter?'active':''}" data-filter="${f}">${f==='All'?'All':f}</button>`).join('');
     $('filters').querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.filter;render();});
     $('calendar-view-button').classList.toggle('active',activeView==='calendar');
+    $('roadmap-view-button').classList.toggle('active',activeView==='roadmap');
     $('notes-view-button').classList.toggle('active',activeView==='notes');
     $('calendar-view-button').setAttribute('aria-pressed',String(activeView==='calendar'));
+    $('roadmap-view-button').setAttribute('aria-pressed',String(activeView==='roadmap'));
     $('notes-view-button').setAttribute('aria-pressed',String(activeView==='notes'));
+    $('view-hint').textContent=activeView==='roadmap'?'Bars are to scale; vertical divisions mark two-hour blocks and overlaps line up by time.':activeView==='notes'?'Notes save in this browser. Export a day as Markdown to move it elsewhere.':'Choose a day and filter by priority, or switch to Roadmap to compare timing and overlaps.';
     $('filters').hidden=activeView==='notes';
     document.querySelector('.actions').hidden=activeView==='notes';
     document.querySelector('.must-box').hidden=activeView==='notes';
     document.querySelector('.legend').hidden=activeView==='notes';
-    $('agenda').hidden=activeView==='notes';
+    $('agenda').hidden=activeView!=='calendar';
+    $('roadmap-view').hidden=activeView!=='roadmap';
     $('notes-panel').hidden=activeView!=='notes';
   }
   function renderMustSee() {
@@ -399,13 +430,51 @@
     $('must-list').innerHTML=items.map(e=>`<li class="must-item"><strong><button data-jump="${e.date}">${esc(e.title)}</button></strong><span>${esc(dateName(e.date).replace(/^[^·]+· /,''))} · ${esc(e.start)}–${esc(e.end)} · ${esc(e.location||'Location in app')}</span></li>`).join('')||'<li class="must-item"><span>No must-sees selected yet. Edit a session to add it.</span></li>';
     $('must-list').querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{selectedDate=b.dataset.jump;activeFilter='All';render();window.scrollTo({top:0,behavior:'smooth'});});
   }
+  function formatTimelineTime(minutes) {
+    if(minutes===1440)return '24:00';
+    return `${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
+  }
+  function renderRoadmap(dayItems,visibleItems) {
+    const host=$('roadmap-view');
+    if(!dayItems.length){host.innerHTML='<div class="roadmap-empty">No sessions are scheduled for this day yet.</div>';return;}
+    const first=Math.min(...dayItems.map(e=>parseMinutes(e.start)));
+    const last=Math.max(...dayItems.map(e=>parseMinutes(e.end)));
+    const axisStart=Math.floor(first/120)*120;
+    const axisEnd=Math.max(axisStart+120,Math.ceil(last/120)*120);
+    const span=axisEnd-axisStart;
+    const blocks=Math.ceil(span/120);
+    const step=100/blocks;
+    const ticks=Array.from({length:blocks},(_,index)=>`<div class="roadmap-tick">${formatTimelineTime(axisStart+index*120)}</div>`).join('');
+    const rows=visibleItems.map(e=>{
+      const start=parseMinutes(e.start),end=parseMinutes(e.end),conflict=overlaps(e);
+      const left=((start-axisStart)/span)*100,duration=((end-start)/span)*100;
+      const link=e.link||agendaUrl(e.date);
+      return `<div class="roadmap-row ${conflict?'has-overlap':''}" role="listitem">
+        <div class="roadmap-event-label">
+          <div class="roadmap-event-time">${esc(e.start)}–${esc(e.end)}</div>
+          <div class="roadmap-event-copy"><a class="roadmap-event-name" href="${esc(link)}" target="_blank" rel="noreferrer" title="${esc(e.title)}">${esc(e.title)}</a><div class="roadmap-event-meta">${esc(e.location||'Location to confirm in the Web Summit app')} · ${esc(e.category)} · ${esc(e.priority)}${e.mustSee?' · MUST SEE':''}</div></div>
+          ${conflict?'<span class="roadmap-conflict" title="Overlaps another scheduled session">Overlap</span>':''}
+        </div>
+        <div class="roadmap-track" style="--step:${step}%" aria-label="${esc(e.start)} to ${esc(e.end)}">
+          <span class="roadmap-bar ${priorityClass(e.priority)}" style="--event-start:${left}%;--event-duration:${duration}%" title="${esc(e.title)} · ${esc(e.start)}–${esc(e.end)}"></span>
+        </div>
+      </div>`;
+    }).join('');
+    const overlappingRows=visibleItems.filter(overlaps).length;
+    host.innerHTML=`<p class="roadmap-intro">${visibleItems.length} sessions shown · ${overlappingRows} rows overlap another scheduled session. Longer bars mean longer sessions. Each column is two hours.</p>
+      <div class="roadmap-shell"><div class="roadmap-grid" style="--blocks:${blocks}">
+        <div class="roadmap-axis"><div class="roadmap-axis-label">Session · stage · priority</div><div class="roadmap-axis-track">${ticks}<span class="roadmap-tick-end">${formatTimelineTime(axisEnd)}</span></div></div>
+        <div role="list" style="display:contents">${rows||'<div class="roadmap-empty">No sessions match this filter. Choose another priority.</div>'}</div>
+      </div></div>`;
+  }
   function render() {
     renderTabs();
     const day = dates.find(d=>d.id===selectedDate);
     $('day-title').textContent=day.name; $('day-subtitle').textContent=day.note;
     const todaysEvents=events.filter(e=>e.date===selectedDate).sort((a,b)=>a.start.localeCompare(b.start)||a.title.localeCompare(b.title));
     const list=activeView==='notes'?todaysEvents:todaysEvents.filter(e=>activeFilter==='All'||(activeFilter==='Networking'?e.category==='Networking':e.priority===activeFilter));
-    $('shown-count').textContent=activeView==='notes'?`${list.length} sessions`:`${list.length} shown`;
+    const overlappingRows=list.filter(overlaps).length;
+    $('shown-count').textContent=activeView==='notes'?`${list.length} sessions`:activeView==='roadmap'?`${list.length} shown · ${overlappingRows} overlapping`:`${list.length} shown`;
     renderMustSee();
     $('notes-print-title').textContent=`Web Summit 2026 — ${day.name}`;
     $('day-notes-input').value=dayNotes[selectedDate]||'';
@@ -430,6 +499,7 @@
         <div class="event-actions"><a class="small-btn" href="${esc(link)}" target="_blank" rel="noreferrer">Official schedule ↗</a><button class="small-btn" data-edit="${e.id}">Edit</button><button class="small-btn" data-remove="${e.id}">Remove</button></div>
       </article>`;
     }).join(''):'<div class="empty">No sessions match this filter. Add one or choose another filter.</div>';
+    renderRoadmap(todaysEvents,list);
     $('agenda').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEditor(events.find(e=>e.id===b.dataset.edit)));
     $('agenda').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>removeEvent(b.dataset.remove));
     $('event-total').textContent=`${events.length} sessions`;
@@ -492,6 +562,7 @@
   });
   $('reset-data').onclick=()=>{if(!confirm('Restore the original draft? This replaces all your browser edits and notes. Export first if you want to keep them.'))return;events=seed.map(e=>({...e,id:crypto.randomUUID()}));dayNotes={};try{localStorage.removeItem(storageKey);localStorage.removeItem(dayNotesStorageKey);}catch{}save();saveDayNotes();render();showToast('Original draft restored');};
   $('calendar-view-button').onclick=()=>{activeView='calendar';render();};
+  $('roadmap-view-button').onclick=()=>{activeView='roadmap';render();};
   $('notes-view-button').onclick=()=>{activeView='notes';activeFilter='All';render();};
   $('day-notes-input').addEventListener('input',e=>{dayNotes[selectedDate]=e.target.value;saveDayNotes();});
   $('copy-day-notes').onclick=async()=>{
