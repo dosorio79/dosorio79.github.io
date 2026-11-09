@@ -513,7 +513,7 @@
       "A new era of human-computer interaction",
       "Earth data for enterprise: The key to next-level growth",
       "How AI makes true 1:1 personalization possible at scale",
-      "Your AI doesn't know your market, and here's how to fix that"
+      "AI sovereignty: Data control, governance and predictable AI costs"
     ],
     "lunch": [
       "12:45",
@@ -521,8 +521,8 @@
     ],
     "decisions": [
       "Go directly to Masterclass 2 for Datadog at 10:00. The startup showcase ends at 09:54, leaving only six minutes to change rooms. The monitoring masterclass covers the whole 10:15 banking AI talk and the first five minutes of corporate payments. If the masterclass is full, those two MoneyConf talks run back to back on Stage 8.",
-      "After Datadog, check whether you need to queue again for Masterclass 2. Prioritise Optimizely from 11:00 to 11:45 if you get a seat and the session is useful. If you cannot get in or decide to leave by 11:15, head to Masterclass 3 for AI sovereignty at 11:30.",
-      "After Optimizely, allow 15 minutes to reach Stage 9 for the optional 12:00 talk on AI and market knowledge. The 12:30 analytics talk is on the same stage. If you take the sovereignty fallback, go straight to the 12:30 talk after it ends at 12:15. Lunch is 12:45–13:30.",
+      "Keep the full Optimizely personalization masterclass from 11:00 to 11:45 if you get in and find it useful. Then head to Masterclass 3 for AI sovereignty. Aim to join around 11:55 for the last 20 minutes, subject to late entry and space. If you leave Optimizely early, you can catch more of sovereignty, which starts at 11:30.",
+      "Leave AI sovereignty at 12:15 for the 12:30 analytics talk on Stage 9. If late entry is closed, the 12:00 market-knowledge talk on Stage 9 is an alternative if you can reach it in time. Lunch is 12:45–13:30.",
       "The Stage 13 sequence runs from 13:40 to 16:20 without a venue change. Keep model routing, open source, agent coaching and human judgement as anchors. The 14:40 interaction talk and 15:40 Earth-data talk are useful drop-ins or natural breaks. The fintech founders meetup at 15:00 is the networking alternative.",
       "Flow state at 16:00 brings a customer-experience angle to the AI block. It ends ten minutes before the analysts meetup in Meetup 1. Leave a few minutes early if the walk or queues require it."
     ],
@@ -530,9 +530,11 @@
       "Exploits don't wait for Jira tickets",
       "A new era of human-computer interaction",
       "Earth data for enterprise: The key to next-level growth",
-      "Flow state: A game designer's take on AI",
-      "Your AI doesn't know your market, and here's how to fix that"
-    ]
+      "Flow state: A game designer's take on AI"
+    ],
+    "joinAt": {
+      "AI sovereignty: Data control, governance and predictable AI costs": "11:55"
+    }
   },
   "2026-11-12": {
     "titles": [
@@ -576,6 +578,13 @@
     const host=$('roadmap-view');
     if (plan) {
       visibleItems = dayItems.filter(event => plan.titles.includes(event.title));
+      visibleItems = visibleItems.map(event => {
+        const arrival = plan.joinAt?.[event.title];
+        if (arrival && event.start < arrival && arrival < event.end) {
+          return {...event, start: arrival, title: event.title + ' (join late, session starts ' + event.start + ')'};
+        }
+        return event;
+      });
       $('shown-count').textContent = visibleItems.length + (visibleItems.length === 1 ? ' recommended session' : ' recommended sessions');
       if (plan.transfer && visibleItems.some(item => item.start === plan.transfer.end && item.location?.startsWith('Stage 13'))) visibleItems.push(plan.transfer);
       if (plan.lunch) visibleItems.push({title:'Lunch',start:plan.lunch[0],end:plan.lunch[1],isLunch:true});
