@@ -257,6 +257,9 @@
   ];
   const agendaUrl = d => `https://websummit.com/schedule/date/${d}/`;
   const seed = [
+    {"date":"2026-11-11","start":"16:00","end":"16:20","title":"Flow state: A game designer's take on AI","location":"Stage 13 · AI Summit","category":"AI & data","priority":"P2","notes":"","link":"https://websummit.com/sessions/lis26/9c411fcd-0292-48e5-9b7c-490c8dce8b1e/flow-state-a-game-designer-s-take-on-ai/"},
+    {"date":"2026-11-11","start":"15:20","end":"15:40","title":"Viable systems, judgement, and AI safety","location":"Stage 13 · AI Summit","category":"AI & data","priority":"P2","notes":"","link":"https://websummit.com/sessions/lis26/3c980247-e062-492c-823a-11d388db1439/viable-systems-judgement-and-ai-safety/"},
+    {"date":"2026-11-11","start":"15:00","end":"15:20","title":"Coaching an AI agent like human talent","location":"Stage 13 · AI Summit","category":"AI & data","priority":"P2","notes":"","link":"https://websummit.com/sessions/lis26/8c1c7b41-7711-424d-9214-20d2d29d32f0/coaching-an-ai-agent-like-human-talent/"},
     {"date":"2026-11-12","start":"14:10","end":"14:30","title":"Zombie data: How your data comes back to haunt you","location":"Stage 8 · Cybersecurity Summit","category":"AI & data","priority":"P2","notes":"","link":"https://websummit.com/sessions/lis26/2fad9e2b-9933-4f05-a09e-d4dda60587cb/zombie-data-how-your-data-comes-back-to-haunt-you/"},
     {"date":"2026-11-12","start":"13:40","end":"14:00","title":"Securing the software foundation of civilisation with AI","location":"Stage 13 · AI Summit","category":"Developer","priority":"P2","notes":"","link":"https://websummit.com/sessions/lis26/7e66baa2-493f-4228-90d9-42861cd46717/securing-the-software-foundation-of-civilisation-with-ai/"},
     {"date":"2026-11-11","start":"14:20","end":"14:40","title":"What happens if open source wins?","location":"Stage 13 · AI Summit","category":"AI & data","priority":"P2","notes":"","link":"https://websummit.com/sessions/lis26/fc21052f-75de-4c7e-903c-c3d63dbf12b4/what-happens-if-open-source-wins/"},
@@ -486,16 +489,20 @@
       "Data analysts meetup",
       "How the world’s biggest companies move money",
       "What happens if open source wins?",
-      "SaaS enterprises & fintech founders meetup"
+      "Breakout startups",
+      "Coaching an AI agent like human talent",
+      "Viable systems, judgement, and AI safety",
+      "Flow state: A game designer's take on AI"
     ],
     "lunch": [
       "12:50",
       "13:40"
     ],
     "decisions": [
-      "Start with banking AI. The neobank panel is scheduled to finish five minutes into AI sovereignty. Choose the masterclass for its relevance to model costs and governance in a financial institution. Stay on Stage 8 for the corporate payments talk at 10:40, then allow 25 minutes for the masterclass transfer.",
+      "Start with the 09:24 startup showcase on Centre Stage. It ends at 09:54, giving you 21 minutes to reach MoneyConf for the banking AI and corporate payments talks. Leave Stage 8 after payments to reach AI sovereignty by 11:30.",
       "There are 15 minutes between the masterclass and the ten-minute analytics talk on Stage 9. If the transfer runs long, keep lunch and the 14:00 model-routing talk as your anchors.",
-      "After 50 models, one pipeline, stay for the open-source discussion. You have 20 minutes to reach the fintech founders meetup, then 35 minutes before the data analysts meetup."
+      "Stay on Stage 13 after the routing and open-source talks for two perspectives on managing agents: coaching at 15:00 and human judgement at 15:20. The 15:00 fintech founders meetup is an alternative if networking takes priority.",
+      "Flow state at 16:00 brings a customer-experience angle to the AI block. It ends ten minutes before the analysts meetup in Meetup 1. Leave a few minutes early if the walk or queues require it."
     ]
   },
   "2026-11-12": {
@@ -528,8 +535,9 @@
       visibleItems.sort((a,b)=>a.start.localeCompare(b.start));
     }
     if(!dayItems.length){host.innerHTML='<div class="roadmap-empty">No sessions are scheduled for this day yet.</div>';return;}
-    const first=Math.min(...dayItems.map(e=>parseMinutes(e.start)));
-    const last=Math.max(...dayItems.map(e=>parseMinutes(e.end)));
+    const axisItems = plan && visibleItems.length ? visibleItems : dayItems;
+    const first=Math.min(...axisItems.map(e=>parseMinutes(e.start)));
+    const last=Math.max(...axisItems.map(e=>parseMinutes(e.end)));
     const axisStart=Math.floor(first/60)*60;
     const axisEnd=Math.max(axisStart+60,Math.ceil(last/60)*60);
     const span=axisEnd-axisStart;
