@@ -314,6 +314,7 @@
     {date:'2026-11-10',start:'18:30',end:'20:30',title:'Connect Lisboa — Mayor’s official reception',location:'Lisbon City Hall',category:'Networking',priority:'P3',notes:'Check invitation and access eligibility. Conflicts with Night Summit.',link:agendaUrl('2026-11-10')},
 
     {"date":"2026-11-11","start":"10:00","end":"10:45","title":"Monitoring in the age of GenAI: Beyond golden signals","location":"Masterclass 2","category":"AI & data","priority":"P1","mustSee":true,"notes":"Hosted by Datadog, with Clara Jacintho. For the data chapter, ask how to detect poor answers when latency and error rates look normal, and how to turn an observed failure into an evaluation case.","link":"https://websummit.com/schedule/search/monitoring/"},
+    {"date":"2026-11-11","start":"11:00","end":"11:45","title":"How AI makes true 1:1 personalization possible at scale","location":"Masterclass 2","category":"Marketing analytics","priority":"P1","notes":"Sama Asali, Optimizely. Listen for how the team tests incremental lift from personalization.","link":"https://websummit.com/schedule/search/Optimizely/"},
     {date:'2026-11-11',start:'10:00',end:'10:20',title:'The future of enterprise software has no middleman',location:'Centre Stage',category:'Developer',priority:'P1',notes:'How AI coding tools change who can build software, and the need to keep it secure.',link:agendaUrl('2026-11-11')},
     {date:'2026-11-11',start:'09:24',end:'09:54',title:'Breakout startups',location:'Centre Stage',category:'General',priority:'P3',notes:'Short founder showcase. Optional early start before the 10:00 programme; Centre Stage.',link:'https://websummit.com/sessions/lis26/6059c850-47b5-40eb-8525-f7f2fbb2aa32/breakout-startups/',officialLink:'https://websummit.com/sessions/lis26/6059c850-47b5-40eb-8525-f7f2fbb2aa32/breakout-startups/'},
     {date:'2026-11-11',start:'10:10',end:'10:30',title:'The AI agent economy',location:'Stage 13 · AI Summit',category:'AI & data',priority:'P1',notes:'Agent systems, infrastructure and trust frameworks.',link:agendaUrl('2026-11-11')},
@@ -510,7 +511,8 @@
       "Flow state: A game designer's take on AI",
       "Exploits don't wait for Jira tickets",
       "A new era of human-computer interaction",
-      "Earth data for enterprise: The key to next-level growth"
+      "Earth data for enterprise: The key to next-level growth",
+      "How AI makes true 1:1 personalization possible at scale"
     ],
     "lunch": [
       "12:45",
@@ -518,7 +520,7 @@
     ],
     "decisions": [
       "Go directly to Masterclass 2 for Datadog at 10:00. The startup showcase ends at 09:54, leaving only six minutes to change rooms. The monitoring masterclass covers the whole 10:15 banking AI talk and the first five minutes of corporate payments. If the masterclass is full, those two MoneyConf talks run back to back on Stage 8.",
-      "After Datadog ends at 10:45, use the interval to ask a monitoring question, capture notes and reach Masterclass 3 for AI sovereignty at 11:30. The 11:15 neobanking talk runs until 11:35 and would cost you the start of the governance session.",
+      "Datadog ends at 10:45. Optimizely starts at 11:00 in the same room (Masterclass 2). Check whether you need to queue again. Catch the opening 15 minutes on one-to-one personalization, then leave at 11:15 for AI sovereignty in Masterclass 3 at 11:30. If personalization is more relevant on the day, stay until 11:45 and skip sovereignty.",
       "After the analytics talk, lunch is 12:45–13:30. If you are near Stage 13 by 13:40, catch the security talk before model routing at 14:00.",
       "The Stage 13 sequence runs from 13:40 to 16:20 without a venue change. Keep model routing, open source, agent coaching and human judgement as anchors. The 14:40 interaction talk and 15:40 Earth-data talk are useful drop-ins or natural breaks. The fintech founders meetup at 15:00 is the networking alternative.",
       "Flow state at 16:00 brings a customer-experience angle to the AI block. It ends ten minutes before the analysts meetup in Meetup 1. Leave a few minutes early if the walk or queues require it."
@@ -528,7 +530,10 @@
       "A new era of human-computer interaction",
       "Earth data for enterprise: The key to next-level growth",
       "Flow state: A game designer's take on AI"
-    ]
+    ],
+    "leaveAt": {
+      "How AI makes true 1:1 personalization possible at scale": "11:15"
+    }
   },
   "2026-11-12": {
     "titles": [
@@ -572,6 +577,13 @@
     const host=$('roadmap-view');
     if (plan) {
       visibleItems = dayItems.filter(event => plan.titles.includes(event.title));
+      visibleItems = visibleItems.map(event => {
+        const leave = plan.leaveAt?.[event.title];
+        if (leave && event.start < leave && leave < event.end) {
+          return {...event, end: leave, title: event.title + ' (opening only, full session ends ' + event.end + ')'};
+        }
+        return event;
+      });
       $('shown-count').textContent = visibleItems.length + (visibleItems.length === 1 ? ' recommended session' : ' recommended sessions');
       if (plan.transfer && visibleItems.some(item => item.start === plan.transfer.end && item.location?.startsWith('Stage 13'))) visibleItems.push(plan.transfer);
       if (plan.lunch) visibleItems.push({title:'Lunch',start:plan.lunch[0],end:plan.lunch[1],isLunch:true});
